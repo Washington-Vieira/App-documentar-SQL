@@ -1,0 +1,8 @@
+site_name: Documentação SQL
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Adicionar Consulta: adicionar_consulta.md
+  - Consultas Registradas:
+      - Consulta Usuário: consulta_usuario.md
