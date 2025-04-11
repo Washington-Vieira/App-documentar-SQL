@@ -145,11 +145,11 @@ if subcategorias_existentes:
                             with open(caminho_consulta, "w", encoding="utf-8") as arquivo:
                                 arquivo.write(conteudo_markdown)
                             st.success(f"Consulta '{consulta_selecionada}' foi atualizada com sucesso!")
-                            atualizar_git(f"Atualizada consulta: {consulta_selecionada} na subcategoria {subcategoria}")  # Atualizar Git
+                            atualizar_git(f"Atualizada consulta: {consulta_selecionada} na Pasta {subcategoria}")  # Atualizar Git
                             st.session_state["refresh"] = True  # Marca para recarregar a página
 
                 else:
-                    st.info(f"Nenhuma consulta disponível para edição na subcategoria **{subcategoria}**.")
+                    st.info(f"Nenhuma consulta disponível para edição na Pasta **{subcategoria}**.")
 
             # Aba: Excluir Consultas
             with abas_internas[3]:
@@ -165,5 +165,5 @@ if subcategorias_existentes:
                             caminho_consulta = os.path.join(pasta_subcategoria, consulta_selecionada)
                             os.remove(caminho_consulta)
                             st.warning(f"Consulta '{consulta_selecionada}' foi excluída.")
-                            atualizar_git(f"Excluída consulta: {consulta_selecionada} na subcategoria {subcategoria}")  # Atualizar Git
+                            atualizar_git(f"Excluída consulta: {consulta_selecionada} na Pasta {subcategoria}")  # Atualizar Git
                             st.session_state["refresh"] = True  # Marca para
