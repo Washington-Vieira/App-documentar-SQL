@@ -23,27 +23,27 @@ def atualizar_git(mensagem_commit):
         st.error(f"Erro ao atualizar o repositório Git: {e}")
 
 # Configurar a interface com Streamlit
-st.title("Documentador de Consultas SQL")
+st.title("Documentar Consultas SQL")
 
 # Criar a lista dinâmica de subcategorias
 if not os.path.exists(PASTA_DOCS):
     os.makedirs(PASTA_DOCS)
 
 subcategorias_existentes = [d for d in os.listdir(PASTA_DOCS) if os.path.isdir(os.path.join(PASTA_DOCS, d))]
-nova_subcategoria = st.text_input("Adicionar uma nova subcategoria:", key="nova_subcategoria")
+nova_subcategoria = st.text_input("Adicionar uma nova Pasta:", key="nova_Pasta")
 
-if st.button("Criar Subcategoria", key="criar_subcategoria"):
+if st.button("Criar Pasta", key="criar_Pasta"):
     if nova_subcategoria.strip():
         pasta_nova_subcategoria = os.path.join(PASTA_DOCS, nova_subcategoria.strip())
         if not os.path.exists(pasta_nova_subcategoria):
             os.makedirs(pasta_nova_subcategoria)
             st.success(f"Subcategoria '{nova_subcategoria}' criada com sucesso!")
-            atualizar_git(f"Adicionada nova subcategoria: {nova_subcategoria}")  # Atualizar Git
+            atualizar_git(f"Adicionada nova Pasta: {nova_subcategoria}")  # Atualizar Git
             st.session_state["refresh"] = True  # Marca para recarregar a página
         else:
-            st.warning(f"A subcategoria '{nova_subcategoria}' já existe.")
+            st.warning(f"A Pasta '{nova_subcategoria}' já existe.")
     else:
-        st.error("Por favor, insira um nome válido para a subcategoria.")
+        st.error("Por favor, insira um nome válido para a Pasta.")
 
 # Forçar o refresh da página ao detectar a marcação no estado
 if st.session_state.get("refresh"):
@@ -56,7 +56,7 @@ if subcategorias_existentes:
 
     for aba, subcategoria in zip(abas, subcategorias_existentes):
         with aba:
-            st.subheader(f"Gerenciando a Subcategoria: {subcategoria}")
+            st.subheader(f"Gerenciando a Pasta: {subcategoria}")
 
             # Pasta da subcategoria
             pasta_subcategoria = os.path.join(PASTA_DOCS, subcategoria)
