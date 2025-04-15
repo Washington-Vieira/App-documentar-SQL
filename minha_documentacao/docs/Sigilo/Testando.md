@@ -4,5 +4,5 @@
 SELECT nome,
        idade
 FROM usuarios
-WHERE idade > 18;
+WHERE idade > 20;
 ```
