@@ -1,0 +1,84 @@
+WITH contas AS (
+    SELECT
+        id AS id_conta,
+        cod_plano,
+        nome AS nome_conta,
+        CASE
+            WHEN id LIKE '3.%.%.%.%.%.%.%.%.%.%.%.' THEN 12
+            WHEN id LIKE '3.%.%.%.%.%.%.%.%.%.%.' THEN 11
+            WHEN id LIKE '3.%.%.%.%.%.%.%.%.%.' THEN 10
+            WHEN id LIKE '3.%.%.%.%.%.%.%.%.' THEN 9
+            WHEN id LIKE '3.%.%.%.%.%.%.%.' THEN 8
+            WHEN id LIKE '3.%.%.%.%.%.%.' THEN 7
+            WHEN id LIKE '3.%.%.%.%.%.' THEN 6
+            WHEN id LIKE '3.%.%.%.%.' THEN 5
+            WHEN id LIKE '3.%.%.%.' THEN 4
+            WHEN id LIKE '3.%.%.' THEN 3
+            WHEN id LIKE '3.%' THEN 2
+            WHEN id LIKE '3.%' THEN 1
+            ELSE 1
+        END AS nivel
+    FROM
+        plano_contas
+    WHERE
+        id LIKE '%'  -- id_conta começando com 3 (contas de resultado)
+),
+movimentos AS (
+    SELECT
+        cod_plano_credito AS cod_plano,
+        SUM(CAST(COALESCE(valor, 0) AS NUMERIC(12, 2))) AS vlr_credito,
+        CAST(0 AS NUMERIC(12, 2)) AS vlr_debito,
+        SUM(CAST(COALESCE(valor, 0) AS NUMERIC(12, 2))) AS saldo_vlr,
+        data_movimento,
+        cod_empresa
+    FROM
+        lancamentos_financeiros
+    WHERE
+        (0 = 0 OR cod_empresa = 0) AND
+        situacao = 2 AND
+        (data_movimento BETWEEN '01/10/2024' AND current_date) AND
+        (cod_plano_credito IN (SELECT cod_plano FROM plano_contas))
+    GROUP BY
+        cod_plano_credito, data_movimento, cod_empresa
+
+    UNION ALL
+
+    SELECT
+        cod_plano_debito AS cod_plano,
+        CAST(0 AS NUMERIC(12, 2)) AS vlr_credito,
+        SUM(CAST(COALESCE(valor, 0) AS NUMERIC(12, 2))) AS vlr_debito,
+        SUM(CAST(COALESCE(valor, 0) AS NUMERIC(12, 2))) * (-1) AS saldo_vlr,
+        data_movimento,
+        cod_empresa
+    FROM
+        lancamentos_financeiros
+    WHERE
+        (0 = 0 OR cod_empresa = 0) AND
+        situacao = 2 AND
+        (data_movimento BETWEEN '01/10/2024' AND current_date) AND
+        (cod_plano_debito IN (SELECT cod_plano FROM plano_contas))
+    GROUP BY
+        cod_plano_debito, data_movimento, cod_empresa
+)
+SELECT
+    mov.cod_empresa,
+    pe.nome AS nome_empresa,
+    mov.data_movimento,
+    c.cod_plano,
+    converte_id_para_comparar(c.id_conta) AS id_para_comparar,
+    c.id_conta AS id_para_mostrar,
+    c.nome_conta,
+    c.nivel,
+    COALESCE(SUM(mov.vlr_credito), 0) AS vlr_credito,
+    COALESCE(SUM(mov.vlr_debito), 0) AS vlr_debito,
+    COALESCE(SUM(mov.saldo_vlr), 0) AS saldo_vlr
+FROM
+    contas c
+LEFT JOIN
+    movimentos mov ON mov.cod_plano = c.cod_plano
+LEFT JOIN
+    pessoas pe ON mov.cod_empresa = pe.cod_pessoa
+GROUP BY
+    mov.cod_empresa, pe.nome, mov.data_movimento, c.cod_plano, c.id_conta, c.nome_conta, c.nivel
+ORDER BY
+    id_para_comparar
